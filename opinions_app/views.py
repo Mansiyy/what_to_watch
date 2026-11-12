@@ -1,39 +1,19 @@
-from flask import (
-    abort,
-    redirect,
-    render_template,
-    url_for
-)
+﻿from random import randrange
 
-from random import randrange
+from flask import abort, redirect, render_template, url_for
 
 from . import app, db
 from .forms import OpinionForm
 from .models import Opinion
 
 
-@app.errorhandler(500)
-def internal_error(error):
-    db.session.rollback()
-    return render_template('500.html'), 500
-
-
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template('404.html'), 404
-
-
-@app.route('/opinions/<int:id>')
+@app.route("/opinions/<int:id>")
 def opinion_view(id):
     opinion = Opinion.query.get_or_404(id)
-
-    return render_template(
-        'opinion.html',
-        opinion=opinion
-    )
+    return render_template("opinion.html", opinion=opinion)
 
 
-@app.route('/add', methods=['GET', 'POST'])
+@app.route("/add", methods=["GET", "POST"])
 def add_opinion_view():
     form = OpinionForm()
 
@@ -48,16 +28,13 @@ def add_opinion_view():
         db.session.commit()
 
         return redirect(
-            url_for('opinion_view', id=opinion.id)
+            url_for("opinion_view", id=opinion.id)
         )
 
-    return render_template(
-        'add_opinion.html',
-        form=form
-    )
+    return render_template("add_opinion.html", form=form)
 
 
-@app.route('/')
+@app.route("/")
 def index_view():
     quantity = Opinion.query.count()
 
@@ -65,10 +42,6 @@ def index_view():
         abort(500)
 
     offset_value = randrange(quantity)
-
     opinion = Opinion.query.offset(offset_value).first()
 
-    return render_template(
-        'opinion.html',
-        opinion=opinion
-    )
+    return render_template("opinion.html", opinion=opinion)
